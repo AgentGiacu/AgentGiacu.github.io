@@ -194,6 +194,28 @@
   .fact:last-child { border-bottom: none; }
   .fact b { color: var(--text); text-align: right; }
 
+  /* project filters */
+  .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+  .fchip {
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    padding: 7px 16px;
+    transition: color 0.2s, background 0.2s, border-color 0.2s;
+  }
+  .fchip:hover { color: var(--text); border-color: rgba(167,139,250,0.4); }
+  .fchip.active {
+    color: #061018;
+    background: linear-gradient(100deg, var(--cyan), var(--violet));
+    border-color: transparent;
+  }
+  .proj.hide { display: none; }
+
   /* project cards */
   .proj-grid {
     display: grid;
@@ -234,6 +256,8 @@
     color: var(--muted);
     white-space: nowrap;
   }
+  .proj-icon { width: 24px; height: 24px; flex: none; opacity: 0.9; }
+  .proj-icon * { stroke: var(--violet); fill: none; stroke-width: 1.6; }
   .badge {
     font-family: var(--mono);
     font-size: 0.68rem;
@@ -258,6 +282,102 @@
     padding: 2px 10px;
   }
   .proj-meta { font-size: 0.8rem; color: var(--muted); font-style: italic; }
+  .proj-explore {
+    cursor: pointer;
+    align-self: flex-start;
+    font-family: var(--font);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--cyan);
+    background: rgba(34,211,238,0.08);
+    border: 1px solid rgba(34,211,238,0.25);
+    border-radius: 999px;
+    padding: 6px 16px;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .proj-explore:hover { background: rgba(34,211,238,0.18); transform: translateY(-1px); }
+
+  /* ---- project modal ---- */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(5, 8, 20, 0.72);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+  .modal {
+    background: var(--bg-soft);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    max-width: 860px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    transform: translateY(14px);
+    transition: transform 0.25s;
+  }
+  .modal-backdrop.open .modal { transform: translateY(0); }
+  .modal-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    z-index: 2;
+    cursor: pointer;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--card-border);
+    background: rgba(10, 14, 32, 0.7);
+    color: var(--text);
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: background 0.2s;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.14); }
+  .modal-media {
+    position: relative;
+    border-radius: 19px 19px 0 0;
+    overflow: hidden;
+    background: #0d1228;
+    min-height: 240px;
+  }
+  .modal-media canvas { display: block; width: 100%; height: auto; }
+  .modal-media img { display: block; width: 100%; height: auto; }
+  .media-caption {
+    position: absolute;
+    bottom: 10px;
+    left: 14px;
+    right: 14px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: rgba(232, 236, 246, 0.78);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  }
+  .modal-body { padding: 26px 30px 32px; }
+  .modal-body h3 { font-size: 1.3rem; margin: 10px 0 12px; line-height: 1.35; }
+  .modal-body p { color: var(--muted); margin-bottom: 14px; font-size: 0.95rem; }
+  .modal-body .tags { margin-bottom: 18px; }
+  .modal-links { display: flex; gap: 12px; flex-wrap: wrap; }
+  .modal-links a {
+    color: var(--cyan);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1px solid rgba(34,211,238,0.3);
+    border-radius: 999px;
+    padding: 8px 18px;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .modal-links a:hover { background: rgba(34,211,238,0.12); transform: translateY(-1px); }
 
   /* education timeline */
   .timeline { position: relative; margin-left: 8px; }
@@ -387,14 +507,15 @@
   footer .lang-note { font-family: var(--mono); font-size: 0.75rem; opacity: 0.7; }
 
   @media (max-width: 780px) {
-    .-grid { grid-template-columns: 1fr; }
+    .about-grid { grid-template-columns: 1fr; }
     .nav-inner { flex-direction: column; gap: 10px; }
     header.hero { padding: 70px 0 60px; }
+    .modal-body { padding: 20px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .proj, .btn, .chip, .contact-links a, #langBtn { transition: none; }
+    .proj, .btn, .chip, .contact-links a, #langBtn, .modal, .modal-backdrop { transition: none; }
   }
 </style>
 </head>
@@ -406,7 +527,7 @@
   <div class="nav-inner">
     <a class="nav-logo" href="#top">gv<span>.</span>complexity</a>
     <div class="nav-links">
-      <a href="#"><span class="en"></span><span class="it">Chi sono</span></a>
+      <a href="#about"><span class="en">About</span><span class="it">About</span></a>
       <a href="#projects"><span class="en">Projects</span><span class="it">Progetti</span></a>
       <a href="#education"><span class="en">Education</span><span class="it">Formazione</span></a>
       <a href="#skills"><span class="en">Skills</span><span class="it">Competenze</span></a>
@@ -437,49 +558,81 @@
   <!-- ABOUT -->
   <section id="about">
     <h2 class="sec-title"><i>01.</i> <span class="en">About</span><span class="it">About</span></h2>
-    <div class="about-text">
-      <p>
-        <span class="en">I am a <strong>Master's student in Physics of Complex Systems</strong> at the University of Turin and the University of Eastern Piedmont, where I'm following a curriculum tailored around socio-economic systems. Specifically I attended the following courses: Statistical Mechanics, Nonlinear Waves and Turbulence, Dynamical Systems, Stochastic Processes, Complexity Economics, Econophysics, Derivatives, Financial Econometrics, Complexity in Social Systems, Games and Networks Theory, Neural Networks and Multi Agent Systems.</span>
-        <span class="it">Sono uno <strong>studente magistrale in Fisica dei Sistemi Complessi</strong> presso l'Università di Torino e l'Università del Piemonte Orientale, dove seguo un percorso costruito su misura intorno ai sistemi socio-economici. In particolare ho frequentato i seguenti corsi: Meccanica Statistica, Onde Nonlineari e Turbolenza, Sistemi Dinamici, Processi Stocastici, Economia della Complessità, Econofisica, Derivati, Econometria Finanziaria, Complessità nei Sistemi Sociali, Teoria dei Giochi e delle Reti, Reti Neurali e Sistemi Multi-Agente.</span>
-      </p>
-      <p>
-        <span class="en">I am most interested in <strong>Complexity Economics</strong> developments, specifically via game theoretical and agent-based approaches. My work so far spans economic complexity measures in the world trade web, volatility and financial risk modelling via GARCH-type models, and agent-based simulations for pair trading on cryptocurrency markets.</span>
-        <span class="it">Mi interessano soprattutto gli sviluppi in <strong>Economia della Complessità</strong>, in particolare tramite approcci di teoria dei giochi e basati su agenti. Il mio lavoro finora spazia tra misure di complessità economica nella rete del commercio mondiale, modellazione di volatilità e rischio finanziario tramite modelli di tipo GARCH e simulazioni ad agenti per pair trading sui mercati delle criptovalute.</span>
-      </p>
-      <p>
-        <span class="en">I am currently starting my Master's thesis work on <strong>happiness as a non-trivial functional</strong> for agents to optimise, rather than the simple payoff, in canonical 2-strategy, N-player iterated games — so as to observe the emergence of prosocial or antisocial behaviours via agent-based simulations (<strong>Homo felix</strong> vs <strong>Homo economicus</strong>).</span>
-        <span class="it">Sto attualmente iniziando il lavoro di tesi magistrale sulla <strong>felicità come funzionale non banale</strong> da ottimizzare per gli agenti, al posto del semplice payoff, in giochi iterati canonici a 2 strategie e N giocatori — così da osservare l'emergere di comportamenti prosociali o antisociali tramite simulazioni ad agenti (<strong>Homo felix</strong> vs <strong>Homo economicus</strong>).</span>
-      </p>
-      <p>
-        <span class="en">Always happy to connect with people and discover new ideas!</span>
-        <span class="it">Sempre felice di conoscere gente nuova e scoprire nuove idee!</span>
-      </p>
+    <p class="sec-sub">
+      <span class="en">Physicist diving into complexity science and its economic applications.</span>
+      <span class="it">Fisico che si tuffa nella scienza dei sistemi complessi e nelle sue applicazioni economiche.</span>
+    </p>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>
+          <span class="en">I am a <strong>Master's student in Physics of Complex Systems</strong> at the University of Turin and the University of Eastern Piedmont, where I'm following a curriculum tailored around socio-economic systems. Specifically I attended the following courses: Statistical Mechanics, Nonlinear Waves and Turbulence, Dynamical Systems, Stochastic Processes, Complexity Economics, Econophysics, Derivatives, Financial Econometrics, Complexity in Social Systems, Games and Networks Theory, Neural Networks and Multi Agent Systems.</span>
+          <span class="it">Sono uno <strong>studente magistrale in Fisica dei Sistemi Complessi</strong> presso l'Università di Torino e l'Università del Piemonte Orientale, dove seguo un percorso costruito su misura intorno ai sistemi socio-economici. In particolare ho frequentato i seguenti corsi: Meccanica Statistica, Onde Nonlineari e Turbolenza, Sistemi Dinamici, Processi Stocastici, Economia della Complessità, Econofisica, Derivati, Econometria Finanziaria, Complessità nei Sistemi Sociali, Teoria dei Giochi e delle Reti, Reti Neurali e Sistemi Multi-Agente.</span>
+        </p>
+        <p>
+          <span class="en">I am most interested in <strong>Complexity Economics</strong> developments, specifically via game theoretical and agent-based approaches. My work so far spans economic complexity measures in the world trade web, volatility and financial risk modelling via GARCH-type models, and agent-based simulations for pair trading on cryptocurrency markets.</span>
+          <span class="it">Mi interessano soprattutto gli sviluppi in <strong>Economia della Complessità</strong>, in particolare tramite approcci di teoria dei giochi e basati su agenti. Il mio lavoro finora spazia tra misure di complessità economica nella rete del commercio mondiale, modellazione di volatilità e rischio finanziario tramite modelli di tipo GARCH e simulazioni ad agenti per pair trading sui mercati delle criptovalute.</span>
+        </p>
+        <p>
+          <span class="en">I am currently starting my Master's thesis work on <strong>happiness as a non-trivial functional</strong> for agents to optimise, rather than the simple payoff, in canonical 2-strategy, N-player iterated games — so as to observe the emergence of prosocial or antisocial behaviours via agent-based simulations (<strong>Homo felix</strong> vs <strong>Homo economicus</strong>).</span>
+          <span class="it">Sto attualmente iniziando il lavoro di tesi magistrale sulla <strong>felicità come funzionale non banale</strong> da ottimizzare per gli agenti, al posto del semplice payoff, in giochi iterati canonici a 2 strategie e N giocatori — così da osservare l'emergere di comportamenti prosociali o antisociali tramite simulazioni ad agenti (<strong>Homo felix</strong> vs <strong>Homo economicus</strong>).</span>
+        </p>
+        <p>
+          <span class="en">Always happy to connect with people and discover new ideas!</span>
+          <span class="it">Sempre felice di conoscere gente nuova e scoprire nuove idee!</span>
+        </p>
+      </div>
+      <aside class="facts">
+        <h3>
+          <span class="en">Quick facts</span><span class="it">In breve</span>
+        </h3>
+        <div class="fact"><span class="en">Based in</span><span class="it">Base</span> <b>Turin, Italy</b></div>
+        <div class="fact"><span class="en">Research</span><span class="it">Ricerca</span> <b>Complexity Economics · Game Theory</b></div>
+        <div class="fact"><span class="en">Main tools</span><span class="it">Strumenti</span> <b>Python · JAX · MESA</b></div>
+        <div class="fact">
+          <span class="en">Languages</span><span class="it">Lingue</span>
+          <b>IT · EN · FR</b>
+        </div>
+        <div class="fact"><span class="en">Fun fact</span><span class="it">Curiosità</span> <b class="en">UWC Adriatic alumnus</b><b class="it">Alunno UWC Adriatico</b></div>
+      </aside>
     </div>
+  </section>
 
   <!-- PROJECTS -->
   <section id="projects">
     <h2 class="sec-title"><i>02.</i> <span class="en">Projects &amp; research</span><span class="it">Progetti e ricerca</span></h2>
     <p class="sec-sub">
-      <span class="en">A selection of research and coursework projects. Code and write-ups will land on GitHub as they are completed.</span>
-      <span class="it">Una selezione di progetti di ricerca e d'esame. Codice e relazioni approderanno su GitHub al completamento.</span>
+      <span class="en">A selection of research and coursework projects — open a project to see a live animation and its details.</span>
+      <span class="it">Una selezione di progetti di ricerca e d'esame — apri un progetto per vedere un'animazione e i dettagli.</span>
     </p>
+
+    <div class="filter-bar">
+      <button class="fchip active" data-filter="all"><span class="en">All</span><span class="it">Tutti</span></button>
+      <button class="fchip" data-filter="agent"><span class="en">Agent-based</span><span class="it">Ad agenti</span></button>
+      <button class="fchip" data-filter="econ"><span class="en">Econometrics &amp; Finance</span><span class="it">Econometria e Finanza</span></button>
+      <button class="fchip" data-filter="nets"><span class="en">Networks</span><span class="it">Reti</span></button>
+      <button class="fchip" data-filter="hist"><span class="en">History of Science</span><span class="it">Storia della scienza</span></button>
+    </div>
+
     <div class="proj-grid">
 
-      <article class="proj">
+      <article class="proj" data-cats="agent">
         <div class="proj-top">
+          <svg class="proj-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
           <span class="proj-year">2026 — 2027</span>
           <span class="badge badge-wip"><span class="en">In progress</span><span class="it">In corso</span></span>
         </div>
         <h3><span class="en">Master's Thesis @ ICTP</span><span class="it">Tesi Magistrale @ ICTP</span></h3>
         <p>
-          <span class="en">Thesis research at the Abdus Salam International Centre for Theoretical Physics in Trieste, under the supervision of Paolo Cermelli and Matteo Marsili. Topic: coming soon.</span>
-          <span class="it">Ricerca di tesi presso l'Abdus Salam International Centre for Theoretical Physics di Trieste, sotto la supervisione di Paolo Cermelli e Matteo Marsili. Argomento: in arrivo.</span>
+          <span class="en">Thesis research at the Abdus Salam International Centre for Theoretical Physics in Trieste: happiness as a non-trivial functional in iterated games — <em>Homo felix</em> vs <em>Homo economicus</em>.</span>
+          <span class="it">Ricerca di tesi presso l'Abdus Salam International Centre for Theoretical Physics di Trieste: la felicità come funzionale non banale in giochi iterati — <em>Homo felix</em> vs <em>Homo economicus</em>.</span>
         </p>
-        <div class="tags"><span class="tag">Complex Systems</span><span class="tag">ICTP</span><span class="tag">Statistical Physics</span></div>
+        <div class="tags"><span class="tag">Game Theory</span><span class="tag">Agent-Based</span><span class="tag">ICTP</span></div>
+        <button class="proj-explore" data-open="modal-thesis"><span class="en">Explore</span><span class="it">Esplora</span> →</button>
       </article>
 
-      <article class="proj">
+      <article class="proj" data-cats="agent econ nets">
         <div class="proj-top">
+          <svg class="proj-icon" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.4"/><circle cx="5" cy="18" r="2.4"/><circle cx="19" cy="18" r="2.4"/><line x1="12" y1="7.4" x2="5.6" y2="15.8"/><line x1="12" y1="7.4" x2="18.4" y2="15.8"/><line x1="7.4" y1="18" x2="16.6" y2="18"/></svg>
           <span class="proj-year">2025 — 2026</span>
           <span class="badge badge-wip"><span class="en">In progress</span><span class="it">In corso</span></span>
         </div>
@@ -493,67 +646,76 @@
           <span class="en">with S. Ferriotto &amp; G. Conti · Prof. M. Maggiora</span>
           <span class="it">con S. Ferriotto &amp; G. Conti · Prof. M. Maggiora</span>
         </div>
+        <button class="proj-explore" data-open="modal-crypto"><span class="en">Explore</span><span class="it">Esplora</span> →</button>
       </article>
 
-      <article class="proj">
+      <article class="proj" data-cats="econ">
         <div class="proj-top">
+          <svg class="proj-icon" viewBox="0 0 24 24"><polyline points="3,16 7,16 9,8 12,19 15,12 17,16 21,16"/></svg>
           <span class="proj-year">2026</span>
           <span class="badge badge-done"><span class="en">Completed</span><span class="it">Completato</span></span>
         </div>
         <h3>A Small MSCI World GARCH Tournament</h3>
         <p>
-          <span class="en">GARCH-family models (GARCH, GJR-GARCH, EGARCH) with normal and Student-t innovations compete on the MSCI World Index via the URTH ETF: in-sample fit, out-of-sample volatility forecasts, and VaR/ES at 1, 5 and 10-day horizons. Student-t innovations consistently capture tail risk better; no single specification dominates.</span>
-          <span class="it">Modelli della famiglia GARCH (GARCH, GJR-GARCH, EGARCH) con innovazioni normali e Student-t si sfidano sull'indice MSCI World tramite l'ETF URTH: bontà di adattamento in-sample, previsioni di volatilità out-of-sample e VaR/ES a orizzonti di 1, 5 e 10 giorni. Le innovazioni Student-t catturano sistematicamente meglio il rischio di coda; nessuna specificazione domina su tutti i criteri.</span>
+          <span class="en">GARCH-family models (GARCH, GJR-GARCH, EGARCH) with normal and Student-t innovations compete on the MSCI World Index via the URTH ETF: in-sample fit, out-of-sample volatility forecasts, and VaR/ES at 1, 5 and 10-day horizons.</span>
+          <span class="it">Modelli della famiglia GARCH (GARCH, GJR-GARCH, EGARCH) con innovazioni normali e Student-t si sfidano sull'indice MSCI World tramite l'ETF URTH: bontà di adattamento in-sample, previsioni di volatilità out-of-sample e VaR/ES a orizzonti di 1, 5 e 10 giorni.</span>
         </p>
         <div class="tags"><span class="tag">GARCH</span><span class="tag">Volatility</span><span class="tag">VaR / ES</span><span class="tag">Econometrics</span></div>
         <div class="proj-meta">
           <span class="en">Profs. L. Gambetti &amp; I. Petrella</span>
           <span class="it">Proff. L. Gambetti &amp; I. Petrella</span>
         </div>
+        <button class="proj-explore" data-open="modal-garch"><span class="en">Explore</span><span class="it">Esplora</span> →</button>
       </article>
 
-      <article class="proj">
+      <article class="proj" data-cats="nets econ">
         <div class="proj-top">
+          <svg class="proj-icon" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.2"/><circle cx="19" cy="7" r="2.2"/><circle cx="19" cy="17" r="2.2"/><line x1="7" y1="11" x2="17" y2="7.6"/><line x1="7" y1="13" x2="17" y2="16.4"/></svg>
           <span class="proj-year">2025</span>
           <span class="badge badge-done"><span class="en">BSc Thesis</span><span class="it">Tesi Triennale</span></span>
         </div>
         <h3><span class="en">Economic complexity measures in the world trade web</span><span class="it">Misure di complessità economica nella rete del commercio mondiale</span></h3>
         <p>
-          <span class="en">A review of the state of the art of economic complexity metrics built from world trade data, focusing on entropic measures based on Shannon entropy, and how they paint a more complete picture of the world trade web than traditional monetary metrics.</span>
-          <span class="it">Una rassegna dello stato dell'arte delle metriche di complessità economica costruite dai dati del commercio mondiale, con focus sulle misure entropiche basate sull'entropia di Shannon, e su come esse dipingano un quadro più completo della rete del commercio mondiale rispetto alle metriche monetarie tradizionali.</span>
+          <span class="en">A review of the state of the art of economic complexity metrics built from world trade data, focusing on entropic measures based on Shannon entropy.</span>
+          <span class="it">Una rassegna dello stato dell'arte delle metriche di complessità economica costruite dai dati del commercio mondiale, con focus sulle misure entropiche basate sull'entropia di Shannon.</span>
         </p>
         <div class="tags"><span class="tag">Econophysics</span><span class="tag">Networks</span><span class="tag">Shannon Entropy</span><span class="tag">World Trade Web</span></div>
         <div class="proj-meta">
           <span class="en">Supervisors: F. Baldovin, A. Stella, G. Teza</span>
           <span class="it">Relatori: F. Baldovin, A. Stella, G. Teza</span>
         </div>
+        <button class="proj-explore" data-open="modal-tradeweb"><span class="en">Explore</span><span class="it">Esplora</span> →</button>
       </article>
 
-      <article class="proj">
+      <article class="proj" data-cats="hist">
         <div class="proj-top">
+          <svg class="proj-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="9" ry="3.8"/><ellipse cx="12" cy="12" rx="9" ry="3.8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.8" transform="rotate(120 12 12)"/></svg>
           <span class="proj-year">2025</span>
           <span class="badge badge-done"><span class="en">Coursework</span><span class="it">Corso</span></span>
         </div>
         <h3>Amalie Emmy Noether e i suoi Teoremi</h3>
         <p>
-          <span class="en">An essay for the History of Physics course on Emmy Noether: her life, her two theorems linking symmetries and conservation laws, and her legacy — central to theoretical physics, modern mathematics, and the emancipation of women in academia.</span>
-          <span class="it">Elaborato per il corso di Storia della Fisica su Emmy Noether: la sua vita, i suoi due teoremi che legano simmetrie e leggi di conservazione, e la sua eredità — centrale per la fisica teorica, la matematica moderna e l'emancipazione femminile nel mondo accademico.</span>
+          <span class="en">An essay for the History of Physics course on Emmy Noether: her life, her two theorems linking symmetries and conservation laws, and her legacy.</span>
+          <span class="it">Elaborato per il corso di Storia della Fisica su Emmy Noether: la sua vita, i suoi due teoremi che legano simmetrie e leggi di conservazione, e la sua eredità.</span>
         </p>
         <div class="tags"><span class="tag">History of Physics</span><span class="tag">Symmetries</span><span class="tag">Noether</span></div>
         <div class="proj-meta">Prof. G. Peruzzi</div>
+        <button class="proj-explore" data-open="modal-noether"><span class="en">Explore</span><span class="it">Esplora</span> →</button>
       </article>
 
-      <article class="proj">
+      <article class="proj" data-cats="hist">
         <div class="proj-top">
+          <svg class="proj-icon" viewBox="0 0 24 24"><path d="M10 3h4M11 3v5.5L5.5 18a2 2 0 0 0 1.8 3h9.4a2 2 0 0 0 1.8-3L13 8.5V3"/><path d="M7.5 14h9"/></svg>
           <span class="proj-year">2022</span>
           <span class="badge badge-done"><span class="en">IB Extended Essay</span><span class="it">Extended Essay IB</span></span>
         </div>
         <h3><span class="en">Lavoisier and the French chemical revolution</span><span class="it">Lavoisier e la rivoluzione chimica francese</span></h3>
         <p>
-          <span class="en">IB Extended Essay (French B, grade A) on the historical and cultural role of Lavoisier's <em>Traité élémentaire de chimie</em>: to what extent can historians claim it played a central role in the chemical revolution and in French national identity?</span>
-          <span class="it">Extended Essay IB (Francese B, grado A) sul ruolo storico e culturale del <em>Traité élémentaire de chimie</em> di Lavoisier: in che misura gli storici possono affermare che abbia svolto un ruolo centrale nella rivoluzione della chimica e nell'identità nazionale francese?</span>
+          <span class="en">IB Extended Essay (French B, grade A) on the historical and cultural role of Lavoisier's <em>Traité élémentaire de chimie</em>.</span>
+          <span class="it">Extended Essay IB (Francese B, grado A) sul ruolo storico e culturale del <em>Traité élémentaire de chimie</em> di Lavoisier.</span>
         </p>
         <div class="tags"><span class="tag">History of Science</span><span class="tag">Lavoisier</span><span class="tag">French</span></div>
+        <button class="proj-explore" data-open="modal-lavoisier"><span class="en">Explore</span><span class="it">Esplora</span> →</button>
       </article>
 
     </div>
@@ -712,6 +874,167 @@
 
 </main>
 
+<!-- ============ PROJECT MODALS ============ -->
+
+<div class="modal-backdrop" id="modal-thesis" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Master's Thesis">
+    <button class="modal-close" data-close>×</button>
+    <div class="modal-media">
+      <canvas id="anim-games" width="860" height="300"></canvas>
+      <div class="media-caption"><span class="en">Live: 2-strategy iterated game on a lattice — prosocial (pink) vs antisocial (cyan) clusters emerging via imitation.</span><span class="it">Live: gioco iterato a 2 strategie su reticolo — emergono cluster prosociali (rosa) e antisociali (ciano) per imitazione.</span></div>
+      <!-- To show a real figure instead of the live animation, replace the <canvas> above with:
+           <img src="images/thesis_screenshot.png" alt="Thesis simulation" />
+           (create an images/ folder in your repo and upload the PNG there) -->
+    </div>
+    <div class="modal-body">
+      <span class="badge badge-wip"><span class="en">In progress</span><span class="it">In corso</span></span>
+      <h3><span class="en">Master's Thesis @ ICTP</span><span class="it">Tesi Magistrale @ ICTP</span></h3>
+      <p>
+        <span class="en">Thesis research at the Abdus Salam International Centre for Theoretical Physics (Trieste), supervised by Paolo Cermelli and Matteo Marsili. The idea: instead of optimising the simple payoff, agents optimise <strong>happiness as a non-trivial functional</strong> in canonical 2-strategy, N-player iterated games. Through agent-based simulations we observe whether prosocial or antisocial behaviours emerge — a tale of <em>Homo felix</em> vs <em>Homo economicus</em>.</span>
+        <span class="it">Ricerca di tesi presso l'Abdus Salam International Centre for Theoretical Physics (Trieste), sotto la supervisione di Paolo Cermelli e Matteo Marsili. L'idea: invece di ottimizzare il semplice payoff, gli agenti ottimizzano la <strong>felicità come funzionale non banale</strong> in giochi iterati canonici a 2 strategie e N giocatori. Attraverso simulazioni ad agenti osserviamo se emergono comportamenti prosociali o antisociali — una storia di <em>Homo felix</em> vs <em>Homo economicus</em>.</span>
+      </p>
+      <div class="tags"><span class="tag">Game Theory</span><span class="tag">Agent-Based</span><span class="tag">ICTP</span><span class="tag">Statistical Physics</span></div>
+      <div class="modal-links">
+        <a href="https://github.com/AgentGiacu" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="mailto:giacomo.veglio@edu.unito.it"><span class="en">Ask me about it</span><span class="it">Chiedimi</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-crypto" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Crypto pair-trading">
+    <button class="modal-close" data-close>×</button>
+    <div class="modal-media">
+      <canvas id="anim-pairnet" width="860" height="300"></canvas>
+      <div class="media-caption"><span class="en">Live: cointegration network of crypto pairs — when two nodes light up together, the spread below reverts and a pair trade opens.</span><span class="it">Live: rete di cointegrazione delle coppie crypto — quando due nodi si illuminano insieme, lo spread sotto torna alla media e apre un pair trade.</span></div>
+      <!-- Replace the <canvas> with <img src="images/pairnet.png" alt="..." /> to show real results -->
+    </div>
+    <div class="modal-body">
+      <span class="badge badge-wip"><span class="en">In progress</span><span class="it">In corso</span></span>
+      <h3><span class="en">Genetic agent-based crypto pair-trading pipeline</span><span class="it">Pipeline genetica ad agenti per pair-trading su crypto</span></h3>
+      <p>
+        <span class="en">A genetic-algorithm-inspired, agent-based pair-trading pipeline built on the cointegration network of cryptocurrency pairs. Agents evolve trading rules over the network of statistically cointegrated pairs. Group project for the Econophysics and Multi-Agent Systems labs, with Sharis Ferriotto and Giovanni Conti, under Prof. Marco Maggiora.</span>
+        <span class="it">Pipeline di pair-trading ad agenti ispirata agli algoritmi genetici, costruita sulla rete di cointegrazione delle coppie di criptovalute. Gli agenti fanno evolvere regole di trading sulla rete di coppie statisticamente cointegrate. Progetto di gruppo per i laboratori di Econofisica e Sistemi Multi-Agente, con Sharis Ferriotto e Giovanni Conti, sotto il Prof. Marco Maggiora.</span>
+      </p>
+      <div class="tags"><span class="tag">Agent-Based</span><span class="tag">Cointegration</span><span class="tag">Genetic Algorithms</span><span class="tag">Python</span><span class="tag">Crypto</span></div>
+      <div class="modal-links">
+        <a href="https://github.com/AgentGiacu" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="mailto:giacomo.veglio@edu.unito.it"><span class="en">Ask me about it</span><span class="it">Chiedimi</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-garch" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="GARCH Tournament">
+    <button class="modal-close" data-close>×</button>
+    <div class="modal-media">
+      <canvas id="anim-garch" width="860" height="300"></canvas>
+      <div class="media-caption"><span class="en">Live: a GARCH volatility path with 1-day VaR bands — volatility clusters, and the bands widen exactly when risk does.</span><span class="it">Live: percorso di volatilità GARCH con bande di VaR a 1 giorno — la volatilità si addensa, e le bande si allargano proprio quando il rischio cresce.</span></div>
+      <!-- Replace the <canvas> with <img src="images/garch_bands.png" alt="..." /> to show real results -->
+    </div>
+    <div class="modal-body">
+      <span class="badge badge-done"><span class="en">Completed</span><span class="it">Completato</span></span>
+      <h3>A Small MSCI World GARCH Tournament</h3>
+      <p>
+        <span class="en">GARCH-family models (GARCH, GJR-GARCH, EGARCH) with normal and Student-t innovations compete on the MSCI World Index via the URTH ETF: in-sample fit, out-of-sample volatility forecasts, and Value at Risk / Expected Shortfall at 1, 5 and 10-day horizons. Results: Student-t innovations consistently outperform normal ones in capturing tail risk, while no single GARCH specification dominates across all criteria. Project for the Financial Econometrics course, Profs. Luca Gambetti and Ivan Petrella.</span>
+        <span class="it">Modelli della famiglia GARCH (GARCH, GJR-GARCH, EGARCH) con innovazioni normali e Student-t si sfidano sull'indice MSCI World tramite l'ETF URTH: bontà di adattamento in-sample, previsioni di volatilità out-of-sample e Value at Risk / Expected Shortfall a orizzonti di 1, 5 e 10 giorni. Risultati: le innovazioni Student-t catturano sistematicamente meglio il rischio di coda, mentre nessuna specificazione GARCH domina su tutti i criteri. Progetto per il corso di Econometria Finanziaria, Proff. Luca Gambetti e Ivan Petrella.</span>
+      </p>
+      <div class="tags"><span class="tag">GARCH</span><span class="tag">Volatility</span><span class="tag">VaR / ES</span><span class="tag">Econometrics</span><span class="tag">Python</span></div>
+      <div class="modal-links">
+        <a href="https://github.com/AgentGiacu" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="mailto:giacomo.veglio@edu.unito.it"><span class="en">Ask me about it</span><span class="it">Chiedimi</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-tradeweb" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="World trade web">
+    <button class="modal-close" data-close>×</button>
+    <div class="modal-media">
+      <canvas id="anim-tradeweb" width="860" height="300"></canvas>
+      <div class="media-caption"><span class="en">Live: a stylised world trade web — countries (violet) linked through the products (pink) they export.</span><span class="it">Live: una rete del commercio mondiale stilizzata — paesi (viola) collegati tramite i prodotti (rosa) che esportano.</span></div>
+      <!-- Replace the <canvas> with <img src="images/tradeweb.png" alt="..." /> to show real results -->
+    </div>
+    <div class="modal-body">
+      <span class="badge badge-done"><span class="en">BSc Thesis</span><span class="it">Tesi Triennale</span></span>
+      <h3><span class="en">Economic complexity measures in the world trade web</span><span class="it">Misure di complessità economica nella rete del commercio mondiale</span></h3>
+      <p>
+        <span class="en">In recent years econophysicists have developed metrics, built from world trade web data, that quantify the economic complexity of countries and products. These metrics reflect competitiveness better than traditional economic indicators, as they are built upon a much richer amount of trade information than mere monetary value. The thesis reviews the state of the art, focusing on entropic measures based on Shannon entropy borrowed from classical information theory, and relates these metrics to present as complete a picture as possible of the world trade web. Supervisors: Fulvio Baldovin, Attilio Stella, Gianluca Teza.</span>
+        <span class="it">Negli ultimi anni diversi econofisici hanno sviluppato metriche, elaborate dai dati della rete del commercio mondiale, che quantificano la complessità economica di paesi e prodotti. Queste metriche riflettono la competitività meglio degli indicatori economici tradizionali, poiché si fondano su una quantità di informazioni commerciali molto più ricca del solo valore monetario. La tesi rassegna lo stato dell'arte, concentrandosi sulle misure entropiche basate sull'entropia di Shannon mutuata dalla teoria dell'informazione classica, e mette in relazione queste metriche per dipingere un quadro il più completo possibile della rete del commercio mondiale. Relatori: Fulvio Baldovin, Attilio Stella, Gianluca Teza.</span>
+      </p>
+      <div class="tags"><span class="tag">Econophysics</span><span class="tag">Networks</span><span class="tag">Shannon Entropy</span><span class="tag">World Trade Web</span></div>
+      <div class="modal-links">
+        <a href="https://github.com/AgentGiacu" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="mailto:giacomo.veglio@edu.unito.it"><span class="en">Ask me about it</span><span class="it">Chiedimi</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-noether" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Noether">
+    <button class="modal-close" data-close>×</button>
+    <div class="modal-media">
+      <canvas id="anim-noether" width="860" height="300"></canvas>
+      <div class="media-caption"><span class="en">Live: rotational symmetry — because the laws of physics don't care about your coordinate system, angular momentum is conserved.</span><span class="it">Live: simmetria rotazionale — siccome le leggi della fisica non dipendono dal sistema di coordinate, il momento angolare si conserva.</span></div>
+    </div>
+    <div class="modal-body">
+      <span class="badge badge-done"><span class="en">Coursework</span><span class="it">Corso</span></span>
+      <h3>Amalie Emmy Noether e i suoi Teoremi</h3>
+      <p>
+        <span class="en">An essay for the History of Physics course: biographical aspects of Emmy Noether, her work — particularly her two theorems relating symmetries and invariances — and the legacy she left to our civilisation, highlighting her central role in the development of theoretical physics and modern mathematics, and in the emancipation of women in academia. Prof. Giulio Peruzzi, University of Padua.</span>
+        <span class="it">Un elaborato per il corso di Storia della Fisica: aspetti biografici di Emmy Noether, il suo lavoro — in particolare i suoi due teoremi che mettono in relazione simmetrie e invarianze — e l'eredità lasciata alla nostra civiltà, evidenziando il suo ruolo centrale nello sviluppo della fisica teorica e della matematica moderna e nel processo di emancipazione femminile nella società accademica. Prof. Giulio Peruzzi, Università di Padova.</span>
+      </p>
+      <div class="tags"><span class="tag">History of Physics</span><span class="tag">Symmetries</span><span class="tag">Noether</span></div>
+      <div class="modal-links">
+        <a href="mailto:giacomo.veglio@edu.unito.it"><span class="en">Ask me about it</span><span class="it">Chiedimi</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-lavoisier" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Lavoisier">
+    <button class="modal-close" data-close>×</button>
+    <div class="modal-media">
+      <svg width="860" height="240" viewBox="0 0 860 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stylised chemistry laboratory">
+        <rect width="860" height="240" fill="#0d1228"/>
+        <g stroke="#a78bfa" stroke-width="2" fill="none" opacity="0.9">
+          <path d="M400 60 L400 105 L345 185 Q340 200 355 200 L505 200 Q520 200 515 185 L460 105 L460 60"/>
+          <line x1="385" y1="60" x2="475" y2="60"/>
+        </g>
+        <path d="M362 175 Q360 192 377 192 L483 192 Q500 192 498 175 L470 128 L430 118 L395 135 Z" fill="#f472b6" opacity="0.35"/>
+        <circle cx="420" cy="160" r="6" fill="#22d3ee" opacity="0.7"/>
+        <circle cx="445" cy="145" r="5" fill="#22d3ee" opacity="0.5"/>
+        <circle cx="460" cy="172" r="4" fill="#22d3ee" opacity="0.6"/>
+        <g stroke="#fbbf24" stroke-width="1.5" opacity="0.85" fill="none">
+          <line x1="300" y1="150" x2="330" y2="150"/>
+          <line x1="305" y1="135" x2="305" y2="165"/>
+          <line x1="530" y1="140" x2="558" y2="140"/>
+          <line x1="544" y1="126" x2="544" y2="154"/>
+        </g>
+        <text x="430" y="228" fill="#a3aec8" font-family="monospace" font-size="13" text-anchor="middle">Traité élémentaire de chimie — 1789</text>
+      </svg>
+      <div class="media-caption"><span class="en">1789: chemistry gets its own revolution.</span><span class="it">1789: anche la chimica ha la sua rivoluzione.</span></div>
+    </div>
+    <div class="modal-body">
+      <span class="badge badge-done"><span class="en">IB Extended Essay</span><span class="it">Extended Essay IB</span></span>
+      <h3><span class="en">Lavoisier and the French chemical revolution</span><span class="it">Lavoisier e la rivoluzione chimica francese</span></h3>
+      <p>
+        <span class="en">IB Extended Essay (French B, grade A) on the historical and cultural role of Lavoisier's <em>Traité élémentaire de chimie</em>. Research question: to what extent can historians claim that the <em>Traité</em>, treated as the summary of all of Lavoisier's work, played a central role in the chemical revolution and in French national identity? Supervisor: Virginie Delhia Collini, UWC Adriatic.</span>
+        <span class="it">Extended Essay IB (Francese B, grado A) sul ruolo storico e culturale del <em>Traité élémentaire de chimie</em> di Lavoisier. Domanda di ricerca: in che misura gli storici possono affermare che il <em>Traité</em>, inteso come sintesi di tutto il lavoro di Lavoisier, abbia svolto un ruolo centrale nella rivoluzione della chimica e nell'identità nazionale francese? Supervisore: Virginie Delhia Collini, UWC Adriatico.</span>
+      </p>
+      <div class="tags"><span class="tag">History of Science</span><span class="tag">Lavoisier</span><span class="tag">French</span></div>
+      <div class="modal-links">
+        <a href="mailto:giacomo.veglio@edu.unito.it"><span class="en">Ask me about it</span><span class="it">Chiedimi</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <footer>
   <p>© 2026 Giacomo Veglio</p>
   <p class="lang-note">
@@ -738,6 +1061,329 @@
     var saved = localStorage.getItem("gv-lang");
     if (saved === "it" || saved === "en") setLang(saved);
   } catch (e) {}
+
+  var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---- project filters ----
+  var fchips = document.querySelectorAll(".fchip");
+  var cards = document.querySelectorAll(".proj");
+  fchips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      fchips.forEach(function (c) { c.classList.remove("active"); });
+      chip.classList.add("active");
+      var f = chip.getAttribute("data-filter");
+      cards.forEach(function (card) {
+        var cats = (card.getAttribute("data-cats") || "").split(" ");
+        card.classList.toggle("hide", f !== "all" && cats.indexOf(f) === -1);
+      });
+    });
+  });
+
+  // ---- modal system ----
+  var activeAnim = null;
+  function stopAnim() {
+    if (activeAnim) { cancelAnimationFrame(activeAnim.raf); activeAnim = null; }
+  }
+  function openModal(id) {
+    var bd = document.getElementById(id);
+    if (!bd) return;
+    bd.classList.add("open");
+    bd.setAttribute("aria-hidden", "false");
+    var cv = bd.querySelector("canvas");
+    if (cv && cv.__start) { stopAnim(); activeAnim = cv.__start(); if (REDUCED) stopAnim(); }
+    document.body.style.overflow = "hidden";
+  }
+  function closeModal(bd) {
+    bd.classList.remove("open");
+    bd.setAttribute("aria-hidden", "true");
+    stopAnim();
+    document.body.style.overflow = "";
+  }
+  document.querySelectorAll("[data-open]").forEach(function (b) {
+    b.addEventListener("click", function () { openModal(b.getAttribute("data-open")); });
+  });
+  document.querySelectorAll(".modal-backdrop").forEach(function (bd) {
+    bd.addEventListener("click", function (e) { if (e.target === bd) closeModal(bd); });
+    var close = bd.querySelector("[data-close]");
+    if (close) close.addEventListener("click", function () { closeModal(bd); });
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      document.querySelectorAll(".modal-backdrop.open").forEach(closeModal);
+    }
+  });
+
+  // ---- animation helper ----
+  function makeAnim(canvasId, draw, init) {
+    var cv = document.getElementById(canvasId);
+    if (!cv) return;
+    var ctx = cv.getContext("2d");
+    var state = init ? init(cv.width, cv.height) : {};
+    var W = cv.width, H = cv.height;
+    var t = 0, raf = null;
+    cv.__start = function () {
+      var handle = {};
+      function loop() {
+        draw(ctx, W, H, t++, state);
+        handle.raf = requestAnimationFrame(loop);
+      }
+      loop();
+      return handle;
+    };
+  }
+
+  // 1) Thesis: 2-strategy iterated game lattice (prosocial pink vs antisocial cyan)
+  makeAnim("anim-games", function (ctx, W, H, t, s) {
+    if (t === 0) {
+      var cols = s.cols, rows = s.rows;
+      for (var i = 0; i < cols * rows; i++) s.grid[i] = Math.random() < 0.5 ? 0 : 1;
+    }
+    var cols = s.cols, rows = s.rows, cell = s.cell;
+    // imitation dynamics: a few updates per frame
+    for (var k = 0; k < 40; k++) {
+      var x = Math.floor(Math.random() * cols), y = Math.floor(Math.random() * rows);
+      var nx = (x + Math.floor(Math.random() * 3) - 1 + cols) % cols;
+      var ny = (y + Math.floor(Math.random() * 3) - 1 + rows) % rows;
+      if (Math.random() < 0.97) s.grid[y * cols + x] = s.grid[ny * cols + nx];
+      else s.grid[y * cols + x] = 1 - s.grid[y * cols + x];
+    }
+    ctx.fillStyle = "#0d1228";
+    ctx.fillRect(0, 0, W, H);
+    for (var yy = 0; yy < rows; yy++) {
+      for (var xx = 0; xx < cols; xx++) {
+        var v = s.grid[yy * cols + xx];
+        ctx.fillStyle = v ? "rgba(244,114,182,0.85)" : "rgba(34,211,238,0.85)";
+        ctx.fillRect(xx * cell + 1, yy * cell + 1, cell - 2, cell - 2);
+      }
+    }
+  }, function (W, H) {
+    var cols = 46, rows = 16, cell = Math.min(W / cols, H / rows);
+    return { cols: cols, rows: rows, cell: cell, grid: new Uint8Array(cols * rows) };
+  });
+
+  // 2) Crypto: cointegration network + mean-reverting spread
+  makeAnim("anim-pairnet", function (ctx, W, H, t, s) {
+    var cy = H * 0.42, R = Math.min(H * 0.32, 100);
+    s.ang += 0.003;
+    ctx.fillStyle = "#0d1228";
+    ctx.fillRect(0, 0, W, H);
+    var pts = [];
+    for (var i = 0; i < s.n; i++) {
+      var a = s.ang * (1 + (i % 3) * 0.1) + i * (Math.PI * 2 / s.n);
+      pts.push({ x: W / 2 + Math.cos(a) * R * s.rad[i], y: cy + Math.sin(a) * R * 0.72 * s.rad[i] });
+    }
+    // edges: cointegration strength pulses
+    for (var e = 0; e < s.edges.length; e++) {
+      var ed = s.edges[e];
+      var pulse = 0.25 + 0.75 * Math.abs(Math.sin(t * 0.02 * ed.w + ed.ph));
+      ctx.strokeStyle = "rgba(34,211,238," + (0.1 + 0.35 * pulse * ed.s).toFixed(3) + ")";
+      ctx.lineWidth = ed.s > 0.6 ? 1.6 : 1;
+      ctx.beginPath();
+      ctx.moveTo(pts[ed.a].x, pts[ed.a].y);
+      ctx.lineTo(pts[ed.b].x, pts[ed.b].y);
+      ctx.stroke();
+    }
+    // highlight a "pair trade"
+    var pairA = Math.floor(t / 90) % s.n, pairB = (pairA + 7) % s.n;
+    var glow = Math.abs(Math.sin(t * 0.05));
+    [[pairA, "#f472b6"], [pairB, "#f472b6"]].forEach(function (p) {
+      ctx.fillStyle = p[1];
+      ctx.shadowColor = p[1];
+      ctx.shadowBlur = 12 * glow;
+      ctx.beginPath();
+      ctx.arc(pts[p[0]].x, pts[p[0]].y, 6, 0, 6.2832);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+    for (var i2 = 0; i2 < s.n; i2++) {
+      if (i2 === pairA || i2 === pairB) continue;
+      ctx.fillStyle = "rgba(167,139,250,0.9)";
+      ctx.beginPath();
+      ctx.arc(pts[i2].x, pts[i2].y, 4.5, 0, 6.2832);
+      ctx.fill();
+    }
+    // spread series at bottom (mean reverting)
+    s.sp = s.sp * 0.94 + (Math.random() - 0.5) * 8;
+    s.hist.push(s.sp);
+    if (s.hist.length > 160) s.hist.shift();
+    var x0 = W - 160 * 5, y0 = H - 46;
+    ctx.strokeStyle = "rgba(251,191,36,0.25)";
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(W - 20, y0); ctx.stroke();
+    ctx.strokeStyle = "#fbbf24";
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    for (var q = 0; q < s.hist.length; q++) {
+      var px = x0 + q * 5, py = y0 + s.hist[q] * 1.4;
+      if (q === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }, function (W, H) {
+    var n = 16, rad = [], edges = [];
+    for (var i = 0; i < n; i++) rad.push(0.8 + Math.random() * 0.3);
+    for (var e = 0; e < 24; e++) {
+      edges.push({ a: Math.floor(Math.random() * n), b: Math.floor(Math.random() * n), s: Math.random(), w: 0.5 + Math.random() * 1.5, ph: Math.random() * 6.2832 });
+    }
+    return { n: n, rad: rad, edges: edges, ang: 0, sp: 0, hist: [] };
+  });
+
+  // 3) GARCH: volatility path with VaR bands
+  makeAnim("anim-garch", function (ctx, W, H, t, s) {
+    // extend series
+    if (s.sig.length < 400) {
+      var sig = s.sig[s.sig.length - 1] || 0.02;
+      var eps = gauss();
+      var sig2 = 0.000012 + 0.82 * sig * sig + 0.14 * sig * sig * eps * eps + 0.000002 * eps * eps;
+      s.eps.push(eps);
+      s.sig.push(Math.sqrt(sig2));
+    }
+    ctx.fillStyle = "#0d1228";
+    ctx.fillRect(0, 0, W, H);
+    var win = 160, x0 = 20, x1 = W - 20, y0 = 30, y1 = H - 44;
+    var start = Math.max(0, s.sig.length - win);
+    if (s.sig.length > win + 60) { s.eps = s.eps.slice(-win - 10); s.sig = s.sig.slice(-win - 10); }
+    var n = s.sig.length - start;
+    var maxS = 0.09;
+    function Y(v) { return y1 - (v / maxS) * (y1 - y0); }
+    function X(q) { return x0 + (q / (win - 1)) * (x1 - x0); }
+    // bands ±1.65 sigma
+    ctx.beginPath();
+    for (var q = 0; q < n; q++) { var x = X(q), y = Y(s.sig[start + q] * 1.65); if (q === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+    for (var q2 = n - 1; q2 >= 0; q2--) { ctx.lineTo(X(q2), Y(-s.sig[start + q2] * 1.65)); }
+    ctx.closePath();
+    ctx.fillStyle = "rgba(244,114,182,0.16)";
+    ctx.fill();
+    // zero line
+    ctx.strokeStyle = "rgba(163,174,200,0.3)";
+    ctx.beginPath(); ctx.moveTo(x0, Y(0)); ctx.lineTo(x1, Y(0)); ctx.stroke();
+    // sigma line
+    ctx.strokeStyle = "#22d3ee";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (var q3 = 0; q3 < n; q3++) {
+      var xx = X(q3), yy = Y(s.sig[start + q3]);
+      if (q3 === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+    }
+    ctx.stroke();
+    ctx.fillStyle = "#a3aec8";
+    ctx.font = "12px monospace";
+    ctx.fillText("σt  ± 1.65σt (VaR 1-day)", x0, y0 - 8);
+  }, function () {
+    return { sig: [0.02], eps: [0], hist: [] };
+  });
+
+  function gauss() {
+    var u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+
+  // 4) World trade web: bipartite countries-products network
+  makeAnim("anim-tradeweb", function (ctx, W, H, t, s) {
+    ctx.fillStyle = "#0d1228";
+    ctx.fillRect(0, 0, W, H);
+    var yTop = 30, yBot = H - 40;
+    var nC = 10, nP = 13;
+    var padL = 90, padR = W - 90;
+    var cs = [], ps = [];
+    for (var i = 0; i < nC; i++) cs.push({ x: padL, y: yTop + i * (yBot - yTop) / (nC - 1) });
+    for (var j = 0; j < nP; j++) ps.push({ x: padR, y: yTop + j * (yBot - yTop) / (nP - 1) });
+    // trade edges
+    for (var e = 0; e < s.edges.length; e++) {
+      var ed = s.edges[e];
+      var a = cs[ed.c], b = ps[ed.p];
+      var pulse = 0.3 + 0.7 * Math.abs(Math.sin(t * 0.03 * ed.w + ed.ph));
+      ctx.strokeStyle = "rgba(" + ed.col + "," + (0.08 + 0.3 * pulse).toFixed(3) + ")";
+      ctx.lineWidth = 1 + ed.w;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo((a.x + b.x) / 2, (a.y + b.y) / 2 - 14, b.x, b.y);
+      ctx.stroke();
+    }
+    // nodes
+    for (var i2 = 0; i2 < nC; i2++) {
+      ctx.fillStyle = "#a78bfa";
+      ctx.shadowColor = "#a78bfa";
+      ctx.shadowBlur = 6;
+      ctx.beginPath(); ctx.arc(cs[i2].x, cs[i2].y, 5.5, 0, 6.2832); ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+    for (var j2 = 0; j2 < nP; j2++) {
+      ctx.fillStyle = "#f472b6";
+      ctx.beginPath(); ctx.arc(ps[j2].x, ps[j2].y, 4.5, 0, 6.2832); ctx.fill();
+    }
+    ctx.fillStyle = "#a3aec8";
+    ctx.font = "12px monospace";
+    ctx.fillText("countries", 16, yTop + 4);
+    ctx.fillText("products", W - 74, yTop + 4);
+  }, function () {
+    var edges = [];
+    var cols = ["34,211,238", "244,114,182", "167,139,250", "251,191,36"];
+    for (var e = 0; e < 46; e++) {
+      edges.push({
+        c: Math.floor(Math.random() * 10), p: Math.floor(Math.random() * 13),
+        w: 0.4 + Math.random() * 1.2, ph: Math.random() * 6.2832,
+        col: cols[Math.floor(Math.random() * cols.length)]
+      });
+    }
+    return { edges: edges };
+  });
+
+  // 5) Noether: rotational symmetry — orbits and a conserved arrow
+  makeAnim("anim-noether", function (ctx, W, H, t, s) {
+    ctx.fillStyle = "#0d1228";
+    ctx.fillRect(0, 0, W, H);
+    var cx = W / 2, cy = H / 2;
+    var R = Math.min(H, W) / 2 - 30;
+    // faint symmetry spokes
+    for (var k = 0; k < 12; k++) {
+      var a0 = (k * Math.PI / 6) + s.rot * 0.25;
+      ctx.strokeStyle = "rgba(167,139,250,0.12)";
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(a0) * R, cy + Math.sin(a0) * R);
+      ctx.stroke();
+    }
+    // orbit rings
+    ctx.strokeStyle = "rgba(163,174,200,0.18)";
+    [0.4, 0.65, 0.9].forEach(function (f) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, R * f, 0, 6.2832);
+      ctx.stroke();
+    });
+    // planets
+    var cols = ["#fbbf24", "#a78bfa", "#22d3ee"];
+    for (var p = 0; p < 6; p++) {
+      var f2 = 0.4 + (p % 3) * 0.25;
+      var sp = 0.008 - p * 0.001;
+      var ang = s.rot * (1 + p * 0.15) + p * 1.3;
+      var x = cx + Math.cos(ang) * R * f2;
+      var y = cy + Math.sin(ang) * R * f2;
+      ctx.fillStyle = cols[p % 3];
+      ctx.shadowColor = cols[p % 3];
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(x, y, 4.5, 0, 6.2832);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+    // conserved angular momentum arrow (constant length, rotating direction)
+    var ax = cx + Math.cos(s.rot) * (R * 0.22), ay = cy + Math.sin(s.rot) * (R * 0.22);
+    ctx.strokeStyle = "#f472b6";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(ax, ay);
+    ctx.stroke();
+    ctx.fillStyle = "#f472b6";
+    ctx.beginPath();
+    ctx.arc(ax, ay, 3.5, 0, 6.2832);
+    ctx.fill();
+    ctx.fillStyle = "#a3aec8";
+    ctx.font = "12px monospace";
+    ctx.fillText("L = const — rotation in, conservation out", 20, H - 16);
+    s.rot += REDUCED ? 0 : 0.01;
+  }, function () { return { rot: 0 }; });
 
   // ---- animated network background ----
   (function () {
@@ -767,13 +1413,11 @@
       });
     }
 
-    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     function frame() {
       ctx.clearRect(0, 0, W, H);
       for (var i = 0; i < N; i++) {
         var a = nodes[i];
-        if (!reduced) {
+        if (!REDUCED) {
           a.x += a.vx; a.y += a.vy;
           if (a.x < -20) a.x = W + 20; if (a.x > W + 20) a.x = -20;
           if (a.y < -20) a.y = H + 20; if (a.y > H + 20) a.y = -20;
